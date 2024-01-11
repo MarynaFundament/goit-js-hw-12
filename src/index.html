@@ -2,23 +2,41 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vanilla App Template</title>
-    <link rel="stylesheet" href="./css/styles.css" />
+
+    <link rel="stylesheet" href="./sass/layouts/_mainform.scss">
+    
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.infinitescroll/3.0.6/jquery.infinitescroll.min.js"></script>
+
+    <title>Homework 11</title>
   </head>
   <body>
-    <load ="partials/header.html" />
 
-    <section>
-      <h1>Lorem ipsum dolor sit amet.</h1>
-      <!-- Path to images as from index.html file -->
-      <img src="./img/javascript.svg" alt="" />
-    </section>
+    <div class="container">
+     
+      <form class="search-form" id="search-form">
+        <input
+         class="search-form_input"
+          type="text"
+          name="searchQuery"
+          autocomplete="off"
+          placeholder="Search images... " />
 
-    <!-- Loads the specified .html file -->
-    <load ="partials/vite-promo.html" />
+      <button class="submit-btn" type="submit">Search</button>
+      </form>
+   
+      
 
-    <script type="module" src="./main.js"></script>
+      <div class="gallery">
+      </div>
+ 
+      <span class="loader is-hidden"></span>
+      <button type="button" class="load-more is-hidden">Load more</button>
+    </div>
+
+    <script src="./index.js" type="module"></script> 
+   
   </body>
 </html>
