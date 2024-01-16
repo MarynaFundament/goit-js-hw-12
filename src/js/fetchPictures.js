@@ -1,20 +1,6 @@
 import axios from "axios";
 
-// loader
-
-const loaderContainer = document.querySelector('.loader')
-function showLoader() {
-  loaderContainer.classList.remove('is-hidden');
-}
-
-function hideLoader() {
-  loaderContainer.classList.add('is-hidden');
-}
-
-// fetch
-
-export default class NewFetchPicture{
-
+class NewFetchPicture{
 
  #URL = 'https://pixabay.com/api/'
  #KEY = '39518708-26ab694120e376c6ae35268e7'
@@ -25,7 +11,7 @@ export default class NewFetchPicture{
  safesearch='true';
  orientation='horizontal'
 
- async fetchFunc() {
+ async fetchImg() {
   const searchParams = new URLSearchParams({
     query: this.query,
     page: this.page,
@@ -35,29 +21,12 @@ export default class NewFetchPicture{
     orientation: this.orientation,
   });
 
-  try {
-    showLoader();
-    const response = await axios.get(`${this.#URL}/?key=${this.#KEY}&${searchParams}&q=${this.query}`);
-    this.lastResult = response.data; 
-    return this.lastResult;
 
+  
+  const {data} = await axios.get(`${this.#URL}/?key=${this.#KEY}&${searchParams}&q=${this.query}`);
+  return data;
 
-
-
-  } catch (error) {
-    console.error(`Axios error: ${error.message}`);
-    throw error; 
-  }
-
-  finally{
-      
-    setTimeout(() => {
-      hideLoader();
-    }, 3000);
-
-  }
 }
-
 
 
 updatePage(){
@@ -72,10 +41,12 @@ get query() {
   return this.query;
 }
 
-set query(newRes) {
-  this.query = newRes;
+set query(newQuery) {
+  this.query = newQuery;
 }
 }
+
+export const newFetchPicture = new NewFetchPicture()
 
 
 

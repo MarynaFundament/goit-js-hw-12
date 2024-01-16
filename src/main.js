@@ -1,35 +1,24 @@
 
-import './sass/layouts/_mainform.scss';
-import NewFetchPicture from './js/fetchPictures.js'
-import { lightbox } from './js/lightbox.js';
-
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
+import './sass/layouts/_mainform.scss';
+
+import { newFetchPicture } from './js/fetchPictures.js'
+import { lightbox } from './js/lightbox.js';
+import { refs } from "./js/refs";
 
 
-
-
-
-const newFetchPicture = new NewFetchPicture()
-
-const form = document.querySelector('.search-form')
-const submitBtn = document.querySelector('.submit-btn')
-
-const markupForm = document.querySelector('.gallery')
-const loadMoreBtn = document.querySelector('.load-more')
-const inputEl = document.querySelector('.search-form_input')
 let currentQuery = '';
 
-form.addEventListener('submit', handleSearchRes)
+refs.form.addEventListener('submit', handleSearchRes)
 
 async function handleSearchRes(e){
 e.preventDefault();
 
-console.log(newFetchPicture)
-
-newFetchPicture.resetPage()
-newFetchPicture.query = e.target.elements.searchQuery.value.trim()
-inputEl.value = '';
+refs.galleryList.innerHTML = '';
+newFetchPicture.resetPage();
+newFetchPicture.query = e.target.elements.searchQuery.value.trim();
+e.target.reset();
 
 
 if (newFetchPicture.query === '') {
@@ -44,62 +33,50 @@ if (newFetchPicture.query === '') {
 if (newFetchPicture.query !== currentQuery) {
   newFetchPicture.resetPage();
   currentQuery = newFetchPicture.query;
-  markupForm.innerHTML = '';
+  refs.galleryList.innerHTML = '';
 
-  loadMoreBtn.classList.add('is-hidden')
+  refs.loadMoreBtn.classList.add('is-hidden')
 
 }
 
 try {
+const {hits, totalHits} = await newFetchPicture.fetchImg();
 
+if (hits.length === 0) {
 
-const result = await newFetchPicture.fetchFunc();
-createMarkup(result);
+  iziToast.error({
+    message: 'Sorry, there are no images matching your search query. Please try again.', 
+    position: 'topRight'
+    
+});
 
-let page = 1;
-let isLastPage = false;
-const pageSize = 40;
+  refs.loadMoreBtn.classList.add('is-hidden');
+  return;
+}
 
-const totalResults = result.totalHits;
-const check = Math.ceil(totalResults / pageSize)
+createMarkup(hits);
+refs.loadMoreBtn.classList.remove('is-hidden');
 
-if (page === check) {
- isLastPage = true;
+if (totalHits > 1) {
+  iziToast.success({
+    message: `Hooray! We found ${totalHits} images.`, 
+    position: 'topRight'
+});
+
+}
+
+const check = Math.ceil(totalHits / newFetchPicture.per_page)
+
+if (newFetchPicture.page === check) {
 
  iziToast.info({
    message: 'You have reached the end of search results',
    position: 'topRight'
  });
- loadMoreBtn.classList.add('is-hidden');
+ refs.loadMoreBtn.classList.add('is-hidden');
 } 
- page += 1;
-
- console.log(page)
-
-  if (result.totalHits > 1) {
-    iziToast.success({
-      message: `Hooray! We found ${result.totalHits} images.`, 
-      position: 'topRight'
-  });
-
-  }
-
-  if (result.totalHits === newFetchPicture.page) {
-    loadMoreBtn.classList.add('is-hidden');
-    return;
-  }
-
-  if (result.totalHits === 0) {
-
-    iziToast.error({
-      message: 'Sorry, there are no images matching your search query. Please try again.', 
-      position: 'topRight'
-  });
-    return;
-  }
 
 
-  loadMoreBtn.classList.remove('is-hidden');
 } 
 
 catch (error) {
@@ -108,56 +85,46 @@ catch (error) {
 }
 
 
-loadMoreBtn.addEventListener('click', handleLoadMore)
+refs.loadMoreBtn.addEventListener('click', handleLoadMore)
 
 async function handleLoadMore() {
-  
+ newFetchPicture.updatePage();
 
-  if (newFetchPicture.query === '') {
-    iziToast.warning({
-      message: 'Please, fill the main field', 
-      position: 'topRight'
-  });
+ try{
+    const {hits, totalHits} = await newFetchPicture.fetchImg()
 
-
-    return;
-  }
-
-  
-
- 
-  newFetchPicture.updatePage();
-
-
-  try{
-    const result = await newFetchPicture.fetchFunc()
-
-   
-      createMarkup(result);
+      createMarkup(hits);
 
       const dynamicDiv = document.querySelector('.photo-card');
       const height = dynamicDiv.getBoundingClientRect().height;
         // console.log(height);
       
        window.scrollBy({
-        top: 2 * height,
-        behavior: 'smooth',
+       top: 2 * height,
+       behavior: 'smooth',
       }); 
 
+    const check = Math.ceil(totalHits / newFetchPicture.per_page)
 
-      
-     
+    if (newFetchPicture.page === check) {
+
+       iziToast.info({
+       message: 'You have reached the end of search results',
+       position: 'topRight'
+ });
+ refs.loadMoreBtn.classList.add('is-hidden');
+} 
+
     } catch (error) {
       console.error('Error fetching images:', error);
     }
-  
   
 }
 
 
 
 
-function createMarkup({ hits }) {
+function createMarkup( hits ) {
 
 
   const markup = hits
@@ -190,7 +157,7 @@ function createMarkup({ hits }) {
     )
     .join('');
 
-  markupForm.insertAdjacentHTML('beforeend', markup);
+  refs.galleryList.insertAdjacentHTML('beforeend', markup);
   lightbox.refresh();
 
   //height of the picture
