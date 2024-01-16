@@ -19,7 +19,7 @@ export default class NewFetchPicture{
  #URL = 'https://pixabay.com/api/'
  #KEY = '39518708-26ab694120e376c6ae35268e7'
  query = '';
- page= 1;
+ page = 1;
  per_page = 40;
  image_type='photo';
  safesearch='true';
@@ -37,10 +37,11 @@ export default class NewFetchPicture{
 
   try {
     showLoader();
-
     const response = await axios.get(`${this.#URL}/?key=${this.#KEY}&${searchParams}&q=${this.query}`);
-    
-    return response.data;
+    this.lastResult = response.data; 
+    return this.lastResult;
+
+
 
 
   } catch (error) {
@@ -52,10 +53,11 @@ export default class NewFetchPicture{
       
     setTimeout(() => {
       hideLoader();
-    }, 4000);
+    }, 3000);
 
   }
 }
+
 
 
 updatePage(){
