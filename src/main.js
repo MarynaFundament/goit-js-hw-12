@@ -56,30 +56,25 @@ try {
 const result = await newFetchPicture.fetchFunc();
 createMarkup(result);
 
+let page = 1;
+let isLastPage = false;
+const pageSize = 40;
 
- let page = 1;
- let isLastPage = false;
- const pageSize = 40;
+const totalResults = result.totalHits;
+const check = Math.ceil(totalResults / pageSize)
 
- const totalResults = result.totalHits;
-//  console.log(totalResults)
-//  Math.ceil(totalResults / pageSize)
- const check = totalResults / pageSize
-//  console.log(check)
+if (page === check) {
+ isLastPage = true;
 
- if (page >= check) {
-  isLastPage = true;
-  console.log(page)
+ iziToast.info({
+   message: 'You have reached the end of search results',
+   position: 'topRight'
+ });
+ loadMoreBtn.classList.add('is-hidden');
+} 
+ page += 1;
 
-
-  iziToast.info({
-    message: 'You have reached the end of search results',
-    position: 'topRight'
-  });
-  loadMoreBtn.classList.add('is-hidden');
-} else {
-  page += 1;
-}
+ console.log(page)
 
   if (result.totalHits > 1) {
     iziToast.success({
